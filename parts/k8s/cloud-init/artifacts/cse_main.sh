@@ -232,6 +232,8 @@ fi
 
 VALIDATION_ERR=0
 
+configPrivateClusterHosts
+
 {{- if IsHostedMaster }}
 API_SERVER_DNS_RETRIES=20
 if [[ $API_SERVER_NAME == *.privatelink.* ]]; then

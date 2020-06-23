@@ -37918,7 +37918,10 @@ fi
 
 VALIDATION_ERR=0
 
+# need use EnableHostsConfigAgent later.
+{{- if and IsHostedMaster IsPrivateCluster}}
 configPrivateClusterHosts
+{{end}}
 
 {{- if IsHostedMaster }}
 API_SERVER_DNS_RETRIES=20
@@ -39618,47 +39621,6 @@ write_files:
     {{CloudInitData "customSearchDomainsScript"}}
 {{end}}
 
-{{if IsPrivateCluster}}
-- path: /opt/azure/containers/reconcilePrivateHosts.sh
-  permissions: "0644"
-  owner: root
-  content: |
-    #!/usr/bin/env bash
-    set -o nounset
-    set -o pipefail
-
-    clusterFQDN="test.privatelink.eastus.azmk8s.io"
-    clusterIP="1.2.3.4"
-    SLEEP_SECONDS=15
-
-    TODO: get clusterIP from IMDS tags
-
-    while true; do
-      if grep "$clusterIP $clusterFQDN" /etc/hosts; then
-        echo "$clusterFQDN has already been set to $clusterIP"
-      else
-        sudo sed -i "/$clusterFQDN/d" /etc/hosts
-        sudo sed -i "\$a$clusterIP $clusterFQDN" /etc/hosts
-        echo "Updated $clusterFQDN to $clusterIP"
-      fi
-      sleep "${SLEEP_SECONDS}"
-    done
-
-- path: /etc/systemd/system/reconcile-private-hosts.service
-  permissions: "0644"
-  owner: root
-  content: |
-    [Unit]
-    Description=Reconcile /etc/hosts file for private cluster
-    StartLimitIntervalSec=0
-    [Service]
-    Type=simple
-    Restart=on-failure
-    ExecStart=/bin/bash /opt/azure/containers/reconcilePrivateHosts.sh
-    [Install]
-    WantedBy=multi-user.target
-{{end}}
-
 - path: /var/lib/kubelet/kubeconfig
   permissions: "0644"
   owner: root
@@ -40235,7 +40197,7 @@ write_files:
 
 {{if IsPrivateCluster}}
 - path: /opt/azure/containers/reconcilePrivateHosts.sh
-  permissions: "0644"
+  permissions: "0744"
   owner: root
   content: |
     #!/usr/bin/env bash

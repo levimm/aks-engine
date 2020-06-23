@@ -232,7 +232,10 @@ fi
 
 VALIDATION_ERR=0
 
+# need use EnableHostsConfigAgent later.
+{{- if and IsHostedMaster IsPrivateCluster}}
 configPrivateClusterHosts
+{{end}}
 
 {{- if IsHostedMaster }}
 API_SERVER_DNS_RETRIES=20

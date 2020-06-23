@@ -265,7 +265,7 @@ write_files:
 
 {{if IsPrivateCluster}}
 - path: /opt/azure/containers/reconcilePrivateHosts.sh
-  permissions: "0644"
+  permissions: "0744"
   owner: root
   content: |
     #!/usr/bin/env bash

@@ -40195,7 +40195,7 @@ write_files:
     {{CloudInitData "customSearchDomainsScript"}}
 {{end}}
 
-{{if IsPrivateCluster}}
+{{- if and IsHostedMaster EnableHostsConfigAgent}}
 - path: /opt/azure/containers/reconcilePrivateHosts.sh
   permissions: "0744"
   owner: root
@@ -40227,7 +40227,6 @@ write_files:
   content: |
     [Unit]
     Description=Reconcile /etc/hosts file for private cluster
-    StartLimitIntervalSec=0
     [Service]
     Type=simple
     Restart=on-failure

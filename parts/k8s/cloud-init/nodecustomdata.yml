@@ -273,12 +273,31 @@ write_files:
     set -o pipefail
 
     clusterFQDN="test.privatelink.eastus.azmk8s.io"
-    clusterIP="1.2.3.4"
+    echo "API_SERVER_NAME: $API_SERVER_NAME"
+    if [[ $API_SERVER_NAME == *.privatelink.* ]]; then
+      clusterFQDN=$API_SERVER_NAME
+    fi
     SLEEP_SECONDS=15
 
-    TODO: get clusterIP from IMDS tags
+    function get-apiserver-ip-from-tags() {
+      tags=$(curl -sSL -H "Metadata: true" "http://169.254.169.254/metadata/instance/compute/tags?api-version=2019-03-11&format=text")
+      if [ "$?" == "0" ]; then
+        IFS=";" read -ra tagList <<< "$tags"
+        for i in "${tagList[@]}"; do
+          taggKey=$(echo "$i" | awk -F: '{print $1}')
+          taggValue=$(echo "$i" | awk -F: '{print $2}')
+          if [ "$tagKey" == "aksAPIServerIPAddress" ]; then
+            echo -n "$tagValue"
+            return
+          fi
+        done
+      fi
+
+      echo -n ""
+    }
 
     while true; do
+      clusterIP=$(get-apiserver-ip-from-tags)
       if grep "$clusterIP $clusterFQDN" /etc/hosts; then
         echo "$clusterFQDN has already been set to $clusterIP"
       else

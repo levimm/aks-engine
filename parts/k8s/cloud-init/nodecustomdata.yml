@@ -263,7 +263,7 @@ write_files:
     {{CloudInitData "customSearchDomainsScript"}}
 {{end}}
 
-{{- if and IsHostedMaster EnableHostsConfigAgent}}
+{{if and IsHostedMaster EnableHostsConfigAgent}}
 - path: /opt/azure/containers/reconcilePrivateHosts.sh
   permissions: "0744"
   owner: root
@@ -273,10 +273,11 @@ write_files:
     set -o pipefail
 
     clusterFQDN="test.privatelink.eastus.azmk8s.io"
-    echo "API_SERVER_NAME: $API_SERVER_NAME"
-    if [[ $API_SERVER_NAME == *.privatelink.* ]]; then
+    export API_SERVER_NAME="${API_SERVER_NAME:-}"
+    if [ $API_SERVER_NAME == *.privatelink.* ]; then
       clusterFQDN=$API_SERVER_NAME
     fi
+    echo "clusterFQDN: $clusterFQDN"
     SLEEP_SECONDS=15
 
     function get-apiserver-ip-from-tags() {
@@ -284,8 +285,8 @@ write_files:
       if [ "$?" == "0" ]; then
         IFS=";" read -ra tagList <<< "$tags"
         for i in "${tagList[@]}"; do
-          taggKey=$(echo "$i" | awk -F: '{print $1}')
-          taggValue=$(echo "$i" | awk -F: '{print $2}')
+          tagKey=$(cut -d":" -f1 <<<$i)
+          tagValue=$(cut -d":" -f2 <<<$i)
           if [ "$tagKey" == "aksAPIServerIPAddress" ]; then
             echo -n "$tagValue"
             return
@@ -298,6 +299,11 @@ write_files:
 
     while true; do
       clusterIP=$(get-apiserver-ip-from-tags)
+      if [ -z $clusterIP ]; then
+        sleep "${SLEEP_SECONDS}"
+        continue
+      fi
+
       if grep "$clusterIP $clusterFQDN" /etc/hosts; then
         echo "$clusterFQDN has already been set to $clusterIP"
       else

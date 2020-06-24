@@ -196,7 +196,6 @@ fi
 ensureDHCPv6
 {{end}}
 
-# need use EnableHostsConfigAgent later.
 {{- if and IsHostedMaster EnableHostsConfigAgent}}
 configPrivateClusterHosts
 {{end}}

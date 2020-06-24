@@ -696,7 +696,7 @@ func TestHasStorageProfile(t *testing.T) {
 		expectedPrivateJB        bool
 		expectedHasDisks         bool
 		expectedDesID            string
-                expectedEncryptionAtHost bool
+		expectedEncryptionAtHost bool
 	}{
 		{
 			name: "Storage Account",
@@ -817,7 +817,8 @@ func TestHasStorageProfile(t *testing.T) {
 					OrchestratorType: Kubernetes,
 					KubernetesConfig: &KubernetesConfig{
 						PrivateCluster: &PrivateCluster{
-							Enabled: to.BoolPtr(true),
+							Enabled:                to.BoolPtr(true),
+							EnableHostsConfigAgent: to.BoolPtr(true),
 							JumpboxProfile: &PrivateJumpboxProfile{
 								StorageProfile: ManagedDisks,
 							},

@@ -196,6 +196,11 @@ fi
 ensureDHCPv6
 {{end}}
 
+# need use EnableHostsConfigAgent later.
+{{- if and IsHostedMaster EnableHostsConfigAgent}}
+configPrivateClusterHosts
+{{end}}
+
 ensureKubelet
 ensureJournal
 
@@ -231,11 +236,6 @@ fi
 {{end}}
 
 VALIDATION_ERR=0
-
-# need use EnableHostsConfigAgent later.
-{{- if and IsHostedMaster IsPrivateCluster}}
-configPrivateClusterHosts
-{{end}}
 
 {{- if IsHostedMaster }}
 API_SERVER_DNS_RETRIES=20

@@ -40204,8 +40204,9 @@ write_files:
     set -o pipefail
 
     clusterFQDN="test.privatelink.eastus.azmk8s.io"
-    export API_SERVER_NAME="${API_SERVER_NAME:-}"
-    if [ $API_SERVER_NAME == *.privatelink.* ]; then
+    API_SERVER_NAME={{WrapAsVariable "kubernetesAPIServerIP"}}
+    echo "API_SERVER_NAME: $API_SERVER_NAME"
+    if [[ $API_SERVER_NAME == *.privatelink.* ]]; then
       clusterFQDN=$API_SERVER_NAME
     fi
     echo "clusterFQDN: $clusterFQDN"

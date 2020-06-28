@@ -40205,7 +40205,6 @@ write_files:
 
     clusterFQDN="test.privatelink.eastus.azmk8s.io"
     API_SERVER_NAME={{WrapAsVariable "kubernetesAPIServerIP"}}
-    echo "API_SERVER_NAME: $API_SERVER_NAME"
     if [[ $API_SERVER_NAME == *.privatelink.* ]]; then
       clusterFQDN=$API_SERVER_NAME
     fi
